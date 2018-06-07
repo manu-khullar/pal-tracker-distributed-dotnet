@@ -1,8 +1,10 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Projects
 {
+    [Authorize(Policy = "pal-tracker")]
     public class ProjectController : Controller
     {
         private readonly IProjectDataGateway _gateway;

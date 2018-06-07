@@ -1,8 +1,10 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Backlog
 {
+    [Authorize(Policy = "pal-tracker")]
     [Route("stories"), Produces("application/json")]
     public class StoryController : Controller
     {

@@ -1,13 +1,16 @@
 ﻿using Accounts;
+using AuthDisabler;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Projects;
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
-using Users;
 using Pivotal.Discovery.Client;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Steeltoe.Security.Authentication.CloudFoundry;
+using Projects;
+using Users;
 
 namespace RegistrationServer
 {
@@ -35,6 +38,17 @@ namespace RegistrationServer
             services.AddScoped<IUserDataGateway, UserDataGateway>();
             services.AddScoped<IRegistrationService, RegistrationService>();
             services.AddDiscoveryClient(Configuration);
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                 .AddCloudFoundryJwtBearer(Configuration);
+
+            if (Configuration.GetValue("DISABLE_AUTH", false))
+            {
+                services.DisableClaimsVerification();
+            }
+
+            services.AddAuthorization(options =>
+            options.AddPolicy("pal-tracker", policy => policy.RequireClaim("scope", "uaa.resource")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,6 +57,7 @@ namespace RegistrationServer
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            app.UseAuthentication();
             app.UseMvc();
             app.UseDiscoveryClient();
         }

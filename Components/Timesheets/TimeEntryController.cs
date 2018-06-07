@@ -1,8 +1,10 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Timesheets
 {
+    [Authorize(Policy = "pal-tracker")]
     [Route("time-entries"), Produces("application/json")]
     public class TimeEntryController : Controller
     {
